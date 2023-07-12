@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="../static/ic_launcher.png" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <title>Ampplex</title>
+</head>
+
+<body>
+    <!-- As a link -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img style="width: 30%; height: 30%" src="../static/ic_launcher.png" />
+                <h3
+                    style="text-align: center;  position: absolute; top: 1.5rem; left: 5rem; font-family: sans-serif; font-weight: bold;">
+                    Ampplex</h3>
+            </a>
+        </div>
+    </nav>
+    <h5 style="text-align: center; margin-top: 2rem" id="title">Verify OTP which is sent to your email address</h5>
+
+    <style>
+        h4 {
+            text-align: center;
+            font-weight: "bold";
+            font-size: 30px;
+            margin-top: 10px;
+        }
+    </style>
+    <div class="container"
+        style="display: flex; justify-content: center; align-items: center; margin-top: 50px; box-shadow: grey;">
+        <div class="shadow p-3 mb-5 bg-body rounded"
+            style="background-color: #fafafa; width: 350px; height: 55px; border-radius: 20rem; border-radius: 20rem">
+            <input id="otp_input" onchange="checkLength();"
+                style="margin-left: 1rem; margin-top: -28px; outline: none; border-width: 0px; width: 90%;"
+                placeholder="Enter OTP" />
+        </div>
+        <button type="button" class="btn btn-info" style="margin-top: 10rem; position: absolute;" id="verify_otp">
+            <h6 style="color: #fff; font-weight: bold; font-family: sans-serif; padding-top: 7px;">Verify OTP</h6>
+        </button>
+    </div>
+
+    <script>
+
+        const getEncryptedOTP_from_url = () => {
+            let url = location.href;
+            let url_split = url.split("/");
+            let encrypted_otp = url_split[url_split.length - 2].split('%');
+
+            return encrypted_otp;
+        }
+
+        console.log(getEncryptedOTP_from_url());
+
+        const verify_otp = () => {
+            let otp = document.getElementById("otp_input").value;
+            if (otp === "") {
+                alert("Please enter OTP");
+            } else if (otp == '{{otp}}') {
+                alert("OTP verified!");
+            }
+            else {
+                alert("OTP is incorrect")
+            }
+        }
+
+        const checkLength = () => {
+            if ('{{otp}}'.length == document.getElementById("otp_input").value.length) {
+                verify_otp();
+            }
+        }
+
+        document.getElementById("verify_otp").addEventListener("click", verify_otp());
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-lpyLfhYuitXl2zRZ5Bn2fqnhNAKOAaM/0Kr9laMspuaMiZfGmfwRNFh8HlMy49eQ"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
