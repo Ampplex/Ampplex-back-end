@@ -92,8 +92,7 @@ def Login(email, password):
                 # If user's email and password is correct then returning the status success and user id
                 response = {
                     "status": "success",
-                    "user_id": i,
-                    "UserName": db_val[i]["UserName"]
+                    "status_code": "200"
                 }
                 return json.dumps(response)
         response = {
