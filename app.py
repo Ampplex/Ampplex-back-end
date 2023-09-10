@@ -8,9 +8,6 @@ import requests
 from datetime import datetime
 from random import randint
 import json
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 config = {
     "apiKey": "AIzaSyAl_3yB9aeXUqm95Oehu2hB-uOr5LllUYU",
@@ -28,55 +25,6 @@ database = firebase.database()
 storage = firebase.storage()
 
 app = Flask(__name__)
-
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = 'team.amplex@gmail.com'
-app.config['MAIL_PASSWORD'] = 'iyfmqibihwffqvjnp354,Fbb'
-mail = Mail(app)
-
-
-def sendEmail():
-    # Email configuration
-    sender_email = 'team.amplex@gmail.com'
-    receiver_email = 'ankesh3905222@gmail.com'
-    subject = 'Test Email'
-    message = 'This is a test email sent from Python.'
-
-    # SMTP server settings (for Gmail)
-    smtp_server = 'smtp.gmail.com'
-    smtp_port = 587  # 587 is the default TLS port, use 465 for SSL
-
-    # Your email account credentials (make sure to use an "App Password" or enable less secure apps)
-    username = 'team.amplex@gmail.com'
-    password = 'iyfmqibihwffqvjnp354'
-
-    # Create the email message
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-
-    # Attach the message body
-    msg.attach(MIMEText(message, 'plain'))
-
-    # Establish a secure SMTP connection
-    try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()  # Enable TLS encryption
-        server.login(username, password)
-
-        # Send the email
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-
-        # Close the SMTP server
-        server.quit()
-
-        print("Email sent successfully!")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
 
 
 def Server_Assistant(audio):
@@ -177,10 +125,10 @@ def SignUp(username, email, password):
                     "password": password, "Follower": 0, "Bio": ""}
             database.child("User").push(data)
 
-            msg = Message("Congratulations! you have successfully became a part of Ampplex family",
-                          sender="team.amplex@gmail.com", recipients=[email])
-            msg.body = f"Hi, {username} Thanks for downloading our app. We would love to hear your feedback! \n https://play.google.com/store/apps/details?id=com.ankeshkumar.Ampplex"
-            mail.send(msg)
+            # msg = Message("Congratulations! you have successfully became a part of Ampplex family",
+            #               sender="team.amplex@gmail.com", recipients=[email])
+            # msg.body = f"Hi, {username} Thanks for downloading our app. We would love to hear your feedback! \n https://play.google.com/store/apps/details?id=com.ankeshkumar.Ampplex"
+            # mail.send(msg)
 
             response = {
                 "status": "success",
