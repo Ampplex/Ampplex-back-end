@@ -9,32 +9,11 @@ from datetime import datetime
 from random import randint
 import json
 
-config = {
-    "apiKey": "AIzaSyB_vMbdEOmrMH_Eo4IuNkuObyY_ACLI5-k",
-    "authDomain": "ampplex-75da7.firebaseapp.com",
-    "databaseURL": "https://ampplex-75da7-default-rtdb.firebaseio.com",
-    "projectId": "ampplex-75da7",
-    "databaseURL": "https://ampplex-75da7-default-rtdb.firebaseio.com/",
-    "storageBucket": "ampplex-75da7.appspot.com",
-    "messagingSenderId": "730587965700",
-    "appId": "1:730587965700:web:7c71f40fd541c7b91bc851",
-    "measurementId": "G-BSPPZFVTMS"
-}
-
 firebase = pyrebase.initialize_app(config)
 database = firebase.database()
 storage = firebase.storage()
 
 app = Flask(__name__)
-
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = 'team.amplex@gmail.com'
-app.config['MAIL_PASSWORD'] = 'iyfmqibihwffqvjn'
-mail = Mail(app)
-
 
 def Server_Assistant(audio):
     engine = pyttsx3.init('sapi5')
@@ -126,10 +105,10 @@ def SignUp(username, email, password):
                 "password": password, "Follower": 0, "Bio": ""}
         database.child("User").push(data)
 
-        msg = Message("Congratulations! you have successfully became a part of Ampplex family",
-                      sender="team.amplex@gmail.com", recipients=[email])
-        msg.body = f"Hi, {username} Thanks for downloading our app. We would love to hear your feedback! \n https://play.google.com/store/apps/details?id=com.ankeshkumar.Ampplex"
-        mail.send(msg)
+        # msg = Message("Congratulations! you have successfully became a part of Ampplex family",
+        #               sender="team.amplex@gmail.com", recipients=[email])
+        # msg.body = f"Hi, {username} Thanks for downloading our app. We would love to hear your feedback! \n https://play.google.com/store/apps/details?id=com.ankeshkumar.Ampplex"
+        # mail.send(msg)
 
         return "success"
 
