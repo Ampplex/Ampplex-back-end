@@ -80,11 +80,36 @@ def Home():
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
-    # ... (your existing code)
+    data = request.get_json()
+    sender = data.get('sender')
+    text = data.get('text')
+
+    if not sender or not text:
+        return jsonify({'error': 'Sender and text are required'}), 400
 
     # Emit a WebSocket event to notify clients
-    socketio.emit('new_message', {'message': 'A new message has arrived!'})
+    socketio.emit('new_message', {'sender': sender,
+                  'text': text}, broadcast=True)
+
+    # ... (your existing code)
     return jsonify({'message': 'Message sent successfully', 'message_id': new_message_ref.key}), 201
+
+# WebSocket event handler
+
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+
+if __name__ == '__main__':
+    # Server_Assistant("STARTING AMPPLEX SERVER")
+    socketio.run(app, debug=True, host='0.0.0.0', port=4567)
 
 
 @app.route('/Login/<string:email>/<string:password>', methods=['GET'])
@@ -157,5 +182,5 @@ def SignUp(username, email, password):
 
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
-    app.run(debug=True, host='0.0.0.0', port=4567)
-    socketio.run(app, debug=True)
+    # app.run(debug=True, host='0.0.0.0', port=4567)
+    socketio.run(app, debug=True, host='0.0.0.0', port=4567)
