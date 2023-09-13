@@ -8,6 +8,8 @@ import requests
 from datetime import datetime
 from random import randint
 import json
+from flask_socketio import send
+from flask_socketio import SocketIO
 
 config = {
     "apiKey": "AIzaSyAl_3yB9aeXUqm95Oehu2hB-uOr5LllUYU",
@@ -25,6 +27,7 @@ database = firebase.database()
 storage = firebase.storage()
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 
 def Server_Assistant(audio):
@@ -73,6 +76,15 @@ def Home():
     if request.url == "http://ampplex-backened.herokuapp.com/":
         return redirect('https://ampplex-backened.herokuapp.com/')
     return render_template('index.html')
+
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    # ... (your existing code)
+
+    # Emit a WebSocket event to notify clients
+    socketio.emit('new_message', {'message': 'A new message has arrived!'})
+    return jsonify({'message': 'Message sent successfully', 'message_id': new_message_ref.key}), 201
 
 
 @app.route('/Login/<string:email>/<string:password>', methods=['GET'])
@@ -146,3 +158,4 @@ def SignUp(username, email, password):
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
     app.run(debug=True, host='0.0.0.0', port=4567)
+    socketio.run(app, debug=True)
