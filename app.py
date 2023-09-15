@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 # from flask_mail import Mail, Message
 import pyrebase
 import pyttsx3
@@ -8,8 +8,7 @@ import requests
 from datetime import datetime
 from random import randint
 import json
-from flask_socketio import send
-from flask_socketio import SocketIO
+from flask_socketio import join_room, leave_room, send, SocketIO
 
 config = {
     "apiKey": "AIzaSyAl_3yB9aeXUqm95Oehu2hB-uOr5LllUYU",
@@ -75,24 +74,25 @@ def Cryptography_Decrypt(encryptedTxt):
 def Home():
     if request.url == "http://ampplex-backened.herokuapp.com/":
         return redirect('https://ampplex-backened.herokuapp.com/')
-    return render_template('index.html')
+    # return render_template('index.html')
+    return render_template('chatScreen.html')
 
 
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    data = request.get_json()
-    sender = data.get('sender')
-    text = data.get('text')
+# @app.route('/send_message', methods=['GET'])
+# def send_message():
+#     data = request.get_json()
+#     sender = data.get('sender')
+#     text = data.get('text')
 
-    if not sender or not text:
-        return jsonify({'error': 'Sender and text are required'}), 400
+#     if not sender or not text:
+#         return jsonify({'error': 'Sender and text are required'}), 400
 
-    # Emit a WebSocket event to notify clients
-    socketio.emit('new_message', {'sender': sender,
-                  'text': text}, broadcast=True)
+#     # Emit a WebSocket event to notify clients
+#     socketio.emit('new_message', {'sender': sender,
+#                   'text': text}, broadcast=True)
 
-    # ... (your existing code)
-    return jsonify({'message': 'Message sent successfully', 'message_id': new_message_ref.key}), 201
+#     # ... (your existing code)
+#     return render_template('chatScreen.html')
 
 # WebSocket event handler
 
@@ -107,9 +107,11 @@ def handle_disconnect():
     print('Client disconnected')
 
 
-if __name__ == '__main__':
-    # Server_Assistant("STARTING AMPPLEX SERVER")
-    socketio.run(app, debug=True, host='0.0.0.0', port=4567)
+@socketio.on('message')
+def handle_message(message):
+    print('Received message:', message)
+    # You can broadcast this message to all connected clients
+    socketio.emit('message', message)
 
 
 @app.route('/Login/<string:email>/<string:password>', methods=['GET'])
