@@ -145,7 +145,7 @@ def SignUp(username, email, password):
         if len(password) >= 8:
 
             data = {"UserName": username, "Email": email,
-                    "password": password, "Bio": "", "Profile_pic": None}
+                    "password": password, "Bio": "", "Profile_pic": ""}
             database.child("User").push(data)
 
             # msg = Message("Congratulations! you have successfully became a part of Ampplex family",
