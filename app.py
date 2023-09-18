@@ -77,23 +77,6 @@ def Home():
     # return render_template('index.html')
     return render_template('chatScreen.html')
 
-
-# @app.route('/send_message', methods=['GET'])
-# def send_message():
-#     data = request.get_json()
-#     sender = data.get('sender')
-#     text = data.get('text')
-
-#     if not sender or not text:
-#         return jsonify({'error': 'Sender and text are required'}), 400
-
-#     # Emit a WebSocket event to notify clients
-#     socketio.emit('new_message', {'sender': sender,
-#                   'text': text}, broadcast=True)
-
-#     # ... (your existing code)
-#     return render_template('chatScreen.html')
-
 # WebSocket event handler
 
 
@@ -114,11 +97,13 @@ def handle_message(message):
     socketio.emit('message', message)
 
 
+def getProfilePic(userID):
+    return database.child("User").child(userID).get().val()
+
+
 @app.route('/Login/<string:email>/<string:password>', methods=['GET'])
 def Login(email, password):
 
-    if request.url == f"http://ampplex-backened.herokuapp.com/Login/<string:email>/<string:password>":
-        return redirect("https://ampplex-backened.herokuapp.com/Login/<string:email>/<string:password>")
     response = {}
     try:
 
@@ -132,7 +117,8 @@ def Login(email, password):
                 response = {
                     "status": "success",
                     "status_code": "200",
-                    "userName": db_val[i]["UserName"]
+                    "userName": db_val[i]["UserName"],
+                    "userID": i
                 }
                 return json.dumps(response)
         response = {
@@ -153,15 +139,13 @@ def Login(email, password):
 @app.route('/SignUp/<string:username>/<string:email>/<string:password>', methods=['GET'])
 def SignUp(username, email, password):
 
-    if request.url == "http://ampplex-backened.herokuapp.com/SignUp/<string:username>/<string:email>/<string:password>":
-        return redirect('https://ampplex-backened.herokuapp.com/SignUp/<string:username>/<string:email>/<string:password>')
     response = {}
     # password_len = password.split(' ') // turn on while using cryptography
     try:
         if len(password) >= 8:
 
             data = {"UserName": username, "Email": email,
-                    "password": password, "Follower": 0, "Bio": ""}
+                    "password": password, "Bio": "", "Profile_pic": None}
             database.child("User").push(data)
 
             # msg = Message("Congratulations! you have successfully became a part of Ampplex family",
@@ -182,7 +166,13 @@ def SignUp(username, email, password):
         return json.dumps(response)
 
 
+@app.route('/Add_Friend/<string:myUserID>/<string:requested_userID>/<string:name>', methods=['GET'])
+def Add_Friend(myUserID, requested_userID):
+    friendRequest_Data = {}
+
+
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
     # app.run(debug=True, host='0.0.0.0', port=4567)
     socketio.run(app, debug=True, host='0.0.0.0', port=4567)
+    # getProfilePic("")
