@@ -98,7 +98,7 @@ def handle_message(message):
 
 
 def getProfilePic(userID):
-    return database.child("User").child(userID).get().val()
+    return database.child("User").child(userID).get().val()["Profile_pic"]
 
 
 @app.route('/Login/<string:email>/<string:password>', methods=['GET'])
@@ -167,12 +167,41 @@ def SignUp(username, email, password):
 
 
 @app.route('/Add_Friend/<string:myUserID>/<string:requested_userID>/<string:name>', methods=['GET'])
-def Add_Friend(myUserID, requested_userID):
-    friendRequest_Data = {}
+def Add_Friend(myUserID, requested_userID, name):
+
+    response = {}
+
+    friendRequest_Data = {
+        "name": name,
+        "userID": myUserID,
+        # Fetching the profile picture's url of the user who sent the friend request
+        "Profile_pic": getProfilePic(myUserID)
+    }
+
+    try:
+        # Pushing the above data to the requested user
+        database.child("User").child(requested_userID).child(
+            "Requests").push(friendRequest_Data)
+
+        response = {
+            "status": "success",
+            "status_code": "200"
+        }
+
+        return json.dumps(response)
+
+    except Exception as e:
+        print(e)
+
+        response = {
+            "status": "error",
+            "Exception": e
+        }
+
+        return json.dumps(response)
 
 
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
     # app.run(debug=True, host='0.0.0.0', port=4567)
     socketio.run(app, debug=True, host='0.0.0.0', port=4567)
-    # getProfilePic("")
