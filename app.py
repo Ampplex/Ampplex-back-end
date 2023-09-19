@@ -201,6 +201,39 @@ def Add_Friend(myUserID, requested_userID, name):
         return json.dumps(response)
 
 
+@app.route("/GetUsers", methods=["GET"])
+def GetUsers():
+
+    userList = []
+    try:
+        db_val = database.child("User").get().val()
+
+        for i in db_val:
+            # Here i is the userID of each user in the database
+
+            userName = db_val[i]["UserName"]
+            Profile_pic = db_val[i]["Profile_pic"]
+            userID = i
+
+            response = {
+                "status": "success",
+                "status_code": '200',
+                "userName": userName,
+                "userID": userID,
+                "Profile_pic": Profile_pic
+            }
+
+            userList.append(response)
+
+        return json.dumps(userList)
+    except Exception as e:
+        print(e)
+        response = {
+            "status": "error",
+        }
+        return json.dumps(response)
+
+
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
     # app.run(debug=True, host='0.0.0.0', port=4567)
