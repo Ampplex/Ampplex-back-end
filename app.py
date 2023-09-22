@@ -234,6 +234,46 @@ def GetUsers():
         return json.dumps(response)
 
 
+@app.route("/Remove_friend_Request/<string:myUserID>/<string:requested_userID>/<string:name>", methods=["GET"])
+def Remove_friend_Request(myUserID, requested_userID, name):
+
+    response = {}
+
+    try:
+        Requests = database.child("User").child(
+            requested_userID).child("Requests").get().val()
+
+        for request_id in Requests:
+            userID = database.child("User").child(requested_userID).child(
+                "Requests").child(request_id).get().val()["userID"]
+            print(userID)
+            if myUserID == userID:
+                database.child("User").child(requested_userID).child(
+                    "Requests").child(request_id).remove()
+                response = {
+                    "status": "success",
+                    "status_code": "200",
+                }
+
+                return json.dumps(response)
+
+        response = {
+            "status": "error",
+            "status_code": "404"
+        }
+
+        return json.dumps(response)
+
+    except Exception as e:
+        print(e)
+        response = {
+            "status": "error",
+            "status_code": "404"
+        }
+
+        return json.dumps(response)
+
+
 if __name__ == '__main__':
     # Server_Assistant("STARTING AMPPLEX SERVER")
     # app.run(debug=True, host='0.0.0.0', port=4567)
