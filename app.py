@@ -234,8 +234,8 @@ def GetUsers():
         return json.dumps(response)
 
 
-@app.route("/Remove_friend_Request/<string:myUserID>/<string:requested_userID>/<string:name>", methods=["GET"])
-def Remove_friend_Request(myUserID, requested_userID, name):
+@app.route("/Remove_friend_Request/<string:myUserID>/<string:requested_userID>", methods=["GET"])
+def Remove_friend_Request(myUserID, requested_userID):
 
     response = {}
 
