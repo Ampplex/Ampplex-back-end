@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
-# from flask_mail import Mail, Message
+from flask import Flask, render_template, request, redirect, session
 import pyrebase
 import pyttsx3
 import threading
@@ -26,6 +25,7 @@ database = firebase.database()
 storage = firebase.storage()
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "hjhjsdahhds"
 socketio = SocketIO(app)
 
 
@@ -69,12 +69,14 @@ def Cryptography_Decrypt(encryptedTxt):
     return decryptedTxt
 
 
-@app.route('/home')
 @app.route('/')
+@app.route('/home')
 def Home():
-    if request.url == "http://ampplex-backened.herokuapp.com/":
-        return redirect('https://ampplex-backened.herokuapp.com/')
-    # return render_template('index.html')
+    return render_template('index.html')
+
+
+@app.route('/ChatScreen')
+def ChatScreen():
     return render_template('chatScreen.html')
 
 # WebSocket event handler
@@ -90,18 +92,38 @@ def handle_disconnect():
     print('Client disconnected')
 
 
+@socketio.on('join')
+def handle_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    socketio.emit(
+        'message', {'text': f'{username} has joined the room.'}, room=room)
+
+
+@socketio.on('leave')
+def handle_leave(data):
+    username = data['username']
+    room = data['room']
+    leave_room(room)
+    socketio.emit(
+        'message', {'text': f'{username} has left the room.'}, room=room)
+
+
 @socketio.on('message')
-def handle_message(message):
-    print('Received message:', message)
-    # You can broadcast this message to all connected clients
-    socketio.emit('message', message)
+def handle_message(data):
+    username = data['username']
+    room = data['room']
+    message = data['message']
+    socketio.emit('message', {'text': f'{username}: {message}',
+                              'room': room}, room=room)
 
 
 def getProfilePic(userID):
     return database.child("User").child(userID).get().val()["Profile_pic"]
 
 
-@app.route('/Login/<string:email>/<string:password>', methods=['GET'])
+@ app.route('/Login/<string:email>/<string:password>', methods=['GET'])
 def Login(email, password):
 
     response = {}
@@ -182,6 +204,10 @@ def Add_Friend(myUserID, requested_userID, name):
         # Pushing the above data to the requested user
         database.child("User").child(requested_userID).child(
             "Requests").push(friendRequest_Data)
+        
+        # Pushing the above data to the requested user
+        database.child("User").child(myUserID).child(
+            "myRequests").push(friendRequest_Data)
 
         response = {
             "status": "success",
@@ -201,29 +227,45 @@ def Add_Friend(myUserID, requested_userID, name):
         return json.dumps(response)
 
 
-@app.route("/GetUsers", methods=["GET"])
-def GetUsers():
+@app.route("/GetUsers/<string:myUserID>", methods=["GET"])
+def GetUsers(myUserID):
 
     userList = []
+
+    # If myUserID haven't sent a request to userID i then sent_request_flag will remain False or else it will be True
+
+    sent_request_flag = False
     try:
         db_val = database.child("User").get().val()
 
         for i in db_val:
             # Here i is the userID of each user in the database
+            Requests = database.child("User").child(
+                i).child("Requests").get().val()
 
-            userName = db_val[i]["UserName"]
-            Profile_pic = db_val[i]["Profile_pic"]
-            userID = i
+            # Checking if I have sent friend request to userID i previously
+            if Requests != None:
+                for request_id in Requests:
+                    userID = database.child("User").child(i).child(
+                        "Requests").child(request_id).get().val()["userID"]
 
-            response = {
-                "status": "success",
-                "status_code": '200',
-                "userName": userName,
-                "userID": userID,
-                "Profile_pic": Profile_pic
-            }
+                    if myUserID == userID:
+                        sent_request_flag = True
 
-            userList.append(response)
+                if sent_request_flag == False:
+                    userName = db_val[i]["UserName"]
+                    Profile_pic = db_val[i]["Profile_pic"]
+                    userID = i
+
+                    response = {
+                        "status": "success",
+                        "status_code": '200',
+                        "userName": userName,
+                        "userID": userID,
+                        "Profile_pic": Profile_pic
+                    }
+
+                    userList.append(response)
 
         return json.dumps(userList)
     except Exception as e:
